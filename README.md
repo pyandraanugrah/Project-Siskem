@@ -1,4 +1,4 @@
-<img width="7680" height="4320" alt="taki-tachibana-lofi-7680x4320-14933" src="https://github.com/user-attachments/assets/8b184ccf-466d-461d-9e5b-ef59bdef9e18" /># Secure Login Website with Argon2
+# Secure Login Website with Argon2
 
 A secure authentication website built using Flask, SQLite, and Argon2 password hashing.
 
@@ -30,12 +30,14 @@ A secure authentication website built using Flask, SQLite, and Argon2 password h
  ## Screenshots
 
 ### Login Page
-![Login](<img width="1375" height="852" alt="Screenshot 2026-05-22 231542" src="https://github.com/user-attachments/assets/3a33bff1-4c6c-4d3c-917d-d58834c8621e" />
-)
+![Login]
+<img width="1375" height="852" alt="Screenshot 2026-05-22 231542" src="https://github.com/user-attachments/assets/3a33bff1-4c6c-4d3c-917d-d58834c8621e" />
+
 
 ### Register Page
-![Register](<img width="1376" height="912" alt="image" src="https://github.com/user-attachments/assets/25064d21-4ad2-409f-a815-8f354460f5e1" />
-)
+![Register] 
+<img width="1376" height="912" alt="image" src="https://github.com/user-attachments/assets/25064d21-4ad2-409f-a815-8f354460f5e1" />
+
 
 
 ## Technologies Used
