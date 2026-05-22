@@ -28,6 +28,11 @@ pip install flask
 pip install argon2-cffi
 ```
 
+Create database:
+```bash
+python database.py
+```
+
 Run the application:
 
 ```bash
