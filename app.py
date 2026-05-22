@@ -26,7 +26,36 @@ def register():
     username = request.form['username']
     password = request.form['password']
 
-    # hash password
+    # =========================
+    # PASSWORD VALIDATION
+    # =========================
+
+    # minimal 8 karakter
+    if len(password) < 8:
+        flash("Password minimal 8 karakter!", "error")
+        return redirect('/')
+
+    # harus ada huruf besar
+    if not any(char.isupper() for char in password):
+        flash("Password harus mengandung huruf besar!", "error")
+        return redirect('/')
+
+    # harus ada angka
+    if not any(char.isdigit() for char in password):
+        flash("Password harus mengandung angka!", "error")
+        return redirect('/')
+
+    # harus ada simbol
+    symbols = "!@#$%^&*()_+-="
+
+    if not any(char in symbols for char in password):
+        flash("Password harus mengandung simbol!", "error")
+        return redirect('/')
+
+    # =========================
+    # HASH PASSWORD
+    # =========================
+
     hashed_password = ph.hash(password)
 
     # koneksi database
@@ -53,7 +82,6 @@ def register():
         conn.close()
 
         flash("Username sudah digunakan!", "error")
-       
 
         return redirect('/')
 

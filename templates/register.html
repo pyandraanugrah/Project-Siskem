@@ -31,6 +31,8 @@
           required
         />
 
+        <div id="strength-text"></div>
+
         <div class="show-password">
           <span onclick="togglePassword()"> Show/Hide Password </span>
         </div>
@@ -55,6 +57,49 @@
           password.type = "password";
         }
       }
+    </script>
+    <script>
+      let passwordInput = document.getElementById("password");
+
+      let strengthText = document.getElementById("strength-text");
+
+      passwordInput.addEventListener("input", function () {
+        let password = passwordInput.value;
+
+        let strength = 0;
+
+        // minimal 8 karakter
+        if (password.length >= 8) {
+          strength++;
+        }
+
+        // huruf besar
+        if (/[A-Z]/.test(password)) {
+          strength++;
+        }
+
+        // angka
+        if (/[0-9]/.test(password)) {
+          strength++;
+        }
+
+        // simbol
+        if (/[!@#$%^&*()_+\-=]/.test(password)) {
+          strength++;
+        }
+
+        // hasil strength
+        if (strength <= 1) {
+          strengthText.innerHTML = "❌ Password Lemah!";
+          strengthText.style.color = "#ef4444";
+        } else if (strength <= 3) {
+          strengthText.innerHTML = "⚠️ Password Sedang!";
+          strengthText.style.color = "#facc15";
+        } else {
+          strengthText.innerHTML = "✅ Password Kuat";
+          strengthText.style.color = "#4ade80";
+        }
+      });
     </script>
   </body>
 </html>

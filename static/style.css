@@ -197,3 +197,11 @@ a:hover{
 .show-password span:hover{
     color: #93c5fd;
 }
+
+#strength-text{
+    margin-top: -5px;
+    margin-bottom: 15px;
+
+    font-size: 14px;
+    font-weight: bold;
+}
