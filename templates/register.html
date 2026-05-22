@@ -1,105 +1,194 @@
 <!doctype html>
 <html>
-  <head>
+
+<head>
+
     <title>Register</title>
 
     <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
     />
-  </head>
 
-  <body>
-    <div class="container">
-      <h1>Register</h1>
+</head>
 
-      {% with messages = get_flashed_messages(with_categories=true) %} {% if
-      messages %} {% for category, message in messages %}
+<body>
 
-      <div class="alert alert-{{ category }}">{{ message }}</div>
+<div class="container">
 
-      {% endfor %} {% endif %} {% endwith %}
+    <h1>Register</h1>
 
-      <form action="/register" method="POST">
-        <input type="text" name="username" placeholder="Username" required />
+    {% with messages = get_flashed_messages(with_categories=true) %}
 
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+    <form action="/register" method="POST">
+
+        <!-- USERNAME -->
         <input
-          type="password"
-          name="password"
-          id="password"
-          placeholder="Password"
-          required
-        />
+            type="text"
+            name="username"
+            placeholder="Username"
+            required
+        >
 
+        <!-- PASSWORD -->
+        <input
+            type="password"
+            name="password"
+            id="password"
+            placeholder="Password"
+            required
+        >
+
+        <!-- PASSWORD STRENGTH -->
         <div id="strength-text"></div>
 
+        <!-- SHOW PASSWORD -->
         <div class="show-password">
-          <span onclick="togglePassword()"> Show/Hide Password </span>
+
+            <span onclick="togglePassword()">
+                Show/Hide Password
+            </span>
+
         </div>
 
-        <button type="submit">Register</button>
-      </form>
+        <!-- SECURITY QUESTION -->
+        <select name="security_question" required>
 
-      <div class="center">
-        <br />
+            <option value="">
+                Pilih Security Question
+            </option>
 
-        <a href="/login"> Sudah punya akun? Login </a>
-      </div>
+            <option value="Nama teman masa kecil?">
+                Nama teman masa kecil?
+            </option>
+
+            <option value="Makanan favorit?">
+                Makanan favorit?
+            </option>
+
+            <option value="Genre musik favorit?">
+                Genre musik favorit?
+            </option>
+
+            <option value="Nama hewan peliharaan pertama?">
+                Nama hewan peliharaan pertama?
+            </option>
+
+        </select>
+
+        <!-- SECURITY ANSWER -->
+        <input
+            type="text"
+            name="security_answer"
+            placeholder="Jawaban Security Question"
+            required
+        >
+
+        <!-- BUTTON -->
+        <button type="submit">
+            Register
+        </button>
+
+    </form>
+
+    <div class="center">
+
+        <br>
+
+        <a href="/login">
+            Sudah punya akun? Login
+        </a>
+
     </div>
 
-    <script>
-      function togglePassword() {
-        let password = document.getElementById("password");
+</div>
 
-        if (password.type === "password") {
-          password.type = "text";
-        } else {
-          password.type = "password";
-        }
-      }
-    </script>
-    <script>
-      let passwordInput = document.getElementById("password");
+<script>
 
-      let strengthText = document.getElementById("strength-text");
+function togglePassword() {
 
-      passwordInput.addEventListener("input", function () {
-        let password = passwordInput.value;
+    let password = document.getElementById("password");
 
-        let strength = 0;
+    if (password.type === "password") {
 
-        // minimal 8 karakter
-        if (password.length >= 8) {
-          strength++;
-        }
+        password.type = "text";
 
-        // huruf besar
-        if (/[A-Z]/.test(password)) {
-          strength++;
-        }
+    } else {
 
-        // angka
-        if (/[0-9]/.test(password)) {
-          strength++;
-        }
+        password.type = "password";
 
-        // simbol
-        if (/[!@#$%^&*()_+\-=]/.test(password)) {
-          strength++;
-        }
+    }
 
-        // hasil strength
-        if (strength <= 1) {
-          strengthText.innerHTML = "❌ Password Lemah!";
-          strengthText.style.color = "#ef4444";
-        } else if (strength <= 3) {
-          strengthText.innerHTML = "⚠️ Password Sedang!";
-          strengthText.style.color = "#facc15";
-        } else {
-          strengthText.innerHTML = "✅ Password Kuat";
-          strengthText.style.color = "#4ade80";
-        }
-      });
-    </script>
-  </body>
+}
+
+// PASSWORD STRENGTH METER
+let passwordInput = document.getElementById("password");
+
+let strengthText = document.getElementById("strength-text");
+
+passwordInput.addEventListener("input", function(){
+
+    let password = passwordInput.value;
+
+    let strength = 0;
+
+    // minimal 8 karakter
+    if(password.length >= 8){
+        strength++;
+    }
+
+    // huruf besar
+    if(/[A-Z]/.test(password)){
+        strength++;
+    }
+
+    // angka
+    if(/[0-9]/.test(password)){
+        strength++;
+    }
+
+    // simbol
+    if(/[!@#$%^&*()_+\-=]/.test(password)){
+        strength++;
+    }
+
+    // hasil strength
+    if(strength <= 1){
+
+        strengthText.innerHTML = "❌ Password Lemah!";
+        strengthText.style.color = "#ef4444";
+
+    }
+    else if(strength <= 3){
+
+        strengthText.innerHTML = "⚠️ Password Sedang!";
+        strengthText.style.color = "#facc15";
+
+    }
+    else{
+
+        strengthText.innerHTML = "✅ Password Kuat!";
+        strengthText.style.color = "#4ade80";
+
+    }
+
+});
+
+</script>
+
+</body>
 </html>
