@@ -1,32 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <title>Register</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
 
-<div class="container">
+  <body>
+    <div class="container">
+      <h1>Register</h1>
 
-    <h1>Register</h1>
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
 
-    <form action="/register" method="POST">
+      <div class="alert alert-{{ category }}">{{ message }}</div>
 
-        <input type="text" name="username" placeholder="Username" required>
+      {% endfor %} {% endif %} {% endwith %}
 
-        <input type="password" name="password" placeholder="Password" required>
+      <form action="/register" method="POST">
+        <input type="text" name="username" placeholder="Username" required />
+
+        <input
+          type="password"
+          name="password"
+          id="password"
+          placeholder="Password"
+          required
+        />
+
+        <div class="show-password">
+          <span onclick="togglePassword()"> Show/Hide Password </span>
+        </div>
 
         <button type="submit">Register</button>
+      </form>
 
-    </form>
+      <div class="center">
+        <br />
 
-    <div class="center">
-        <br>
-        <a href="/login">Sudah punya akun? Login</a>
+        <a href="/login"> Sudah punya akun? Login </a>
+      </div>
     </div>
 
-</div>
+    <script>
+      function togglePassword() {
+        let password = document.getElementById("password");
 
-</body>
+        if (password.type === "password") {
+          password.type = "text";
+        } else {
+          password.type = "password";
+        }
+      }
+    </script>
+  </body>
 </html>

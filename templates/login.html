@@ -1,32 +1,58 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <title>Login</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
 
-<div class="container">
+  <script>
+    function togglePassword() {
+      let password = document.getElementById("password");
 
-    <h1>Login</h1>
+      if (password.type === "password") {
+        password.type = "text";
+      } else {
+        password.type = "password";
+      }
+    }
+  </script>
+  <body>
+    <div class="container">
+      <h1>Login</h1>
 
-    <form action="/login" method="POST">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
 
-        <input type="text" name="username" placeholder="Username" required>
+      <div class="alert alert-{{ category }}">{{ message }}</div>
 
-        <input type="password" name="password" placeholder="Password" required>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <form action="/login" method="POST">
+        <input type="text" name="username" placeholder="Username" required />
+
+        <input
+          type="password"
+          name="password"
+          id="password"
+          placeholder="Password"
+          required
+        />
+        <div class="show-password">
+          <span onclick="togglePassword()"> Show/Hide Password </span>
+        </div>
 
         <button type="submit">Login</button>
+      </form>
 
-    </form>
+      <div class="center">
+        <br />
 
-    <div class="center">
-        <br>
-        <a href="/">Belum punya akun? Register</a>
+        <a href="/"> Belum punya akun? Register </a>
+      </div>
     </div>
-
-</div>
-
-</body>
+  </body>
 </html>

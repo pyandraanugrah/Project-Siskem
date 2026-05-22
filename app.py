@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect
+from flask import Flask, render_template, request, session, redirect, flash
 from argon2 import PasswordHasher
 import sqlite3
 
@@ -26,33 +26,36 @@ def register():
     username = request.form['username']
     password = request.form['password']
 
-    # Hash password menggunakan Argon2
+    # hash password
     hashed_password = ph.hash(password)
 
-    # Koneksi database
+    # koneksi database
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
     try:
-        # Simpan user ke database
+
+        # simpan user
         cursor.execute(
             "INSERT INTO users (username, password) VALUES (?, ?)",
             (username, hashed_password)
         )
 
         conn.commit()
+        conn.close()
+
+        flash("Register berhasil! Silakan login.", "success")
+
+        return redirect('/login')
 
     except:
+
         conn.close()
-        return "<h2>Username sudah digunakan!</h2>"
 
-    conn.close()
+        flash("Username sudah digunakan!", "error")
+       
 
-    return """
-    <h2>Register Berhasil!</h2>
-
-    <a href="/login">Login Sekarang</a>
-    """
+        return redirect('/')
 
 # =========================
 # HALAMAN LOGIN
@@ -86,7 +89,8 @@ def login():
 
     # Jika user tidak ditemukan
     if result is None:
-        return "<h2>User tidak ditemukan!</h2>"
+        flash("User tidak ditemukan!", "error")
+        return redirect('/login')
 
     stored_hash = result[0]
 
@@ -100,8 +104,8 @@ def login():
         return redirect('/dashboard')
 
     except:
-        return "<h2>Password salah!</h2>"
-
+        flash("Password salah!", "error")
+        return redirect('/login')
 # =========================
 # DASHBOARD
 # =========================
