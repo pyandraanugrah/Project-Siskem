@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, session, redirect, flash
 from argon2 import PasswordHasher
+import time 
 import sqlite3
 
 app = Flask(__name__)
@@ -9,6 +10,11 @@ app.secret_key = 'secret123'
 
 # Argon2 Password Hasher
 ph = PasswordHasher()
+
+# =========================
+# LOGIN ATTEMPT LIMITER
+# =========================
+login_attempts = {} 
 
 # =========================
 # HALAMAN REGISTER
@@ -133,6 +139,28 @@ def login():
     username = request.form['username']
     password = request.form['password']
 
+        # =========================
+    # CEK APAKAH USER DI-LOCK
+    # =========================
+
+    if username in login_attempts:
+
+        user_data = login_attempts[username]
+
+        # cek apakah masih dalam masa lock
+        if time.time() < user_data["lock_until"]:
+
+            remaining = int(
+                user_data["lock_until"] - time.time()
+            )
+
+            flash(
+                f"Terlalu banyak percobaan login! Coba lagi dalam {remaining} detik.",
+                "error"
+            )
+
+            return redirect('/login') 
+
     # Koneksi database
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
@@ -158,13 +186,51 @@ def login():
     try:
         ph.verify(stored_hash, password)
 
+        # reset login attempts
+        if username in login_attempts:
+
+            login_attempts[username]["attempts"] = 0
+
         # Simpan session login
         session['username'] = username
 
         return redirect('/dashboard')
-
+    
     except:
-        flash("Password salah!", "error")
+
+        # =========================
+        # LOGIN GAGAL
+        # =========================
+
+        if username not in login_attempts:
+
+            login_attempts[username] = {
+                "attempts": 0,
+                "lock_until": 0
+            } 
+
+        login_attempts[username]["attempts"] += 1
+
+        attempts = login_attempts[username]["attempts"]
+
+        # jika gagal 5x
+        if attempts >= 5:
+
+            # lock 1 menit
+            login_attempts[username]["lock_until"] = time.time() + 60
+
+            flash(
+                "Terlalu banyak percobaan login! Akun dikunci 1 menit.",
+                "error"
+            )
+
+            return redirect('/login')
+
+        flash(
+            f"Password salah! Percobaan ke-{attempts}/5",
+            "error"
+        )
+
         return redirect('/login')
 # =========================
 # DASHBOARD
@@ -206,7 +272,12 @@ def delete_account():
     # logout session
     session.pop('username', None)
 
-    return "<h2>Akun berhasil dihapus!</h2>"
+    flash(
+        "Akun berhasil dihapus!",
+        "success"
+)
+
+    return redirect('/login')
 
 # halaman change password
 @app.route('/change_password')
@@ -288,23 +359,22 @@ def forgot_password_page():
 # =========================
 # PROSES FORGOT PASSWORD
 # =========================
-@app.route('/forgot_password', methods=['POST'])
+@app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
 
+    # =========================
+    # JIKA GET
+    # =========================
+    if request.method == 'GET':
+
+        return render_template(
+            'forgot_password.html'
+        )
+
+    # =========================
+    # AMBIL USERNAME
+    # =========================
     username = request.form['username']
-
-    security_answer = request.form['security_answer']
-
-    new_password = request.form['new_password']
-
-    confirm_password = request.form['confirm_password']
-
-    # cek konfirmasi password
-    if new_password != confirm_password:
-
-        flash("Konfirmasi password tidak cocok!", "error")
-
-        return redirect('/forgot_password')
 
     # koneksi database
     conn = sqlite3.connect('database.db')
@@ -314,7 +384,7 @@ def forgot_password():
     # ambil data user
     cursor.execute(
         """
-        SELECT security_answer
+        SELECT security_question, security_answer
         FROM users
         WHERE username = ?
         """,
@@ -332,12 +402,51 @@ def forgot_password():
 
         return redirect('/forgot_password')
 
-    stored_answer = result[0]
+    security_question = result[0]
+
+    stored_answer = result[1]
+
+    # =========================
+    # TAHAP 1
+    # USER BARU INPUT USERNAME
+    # =========================
+    if 'security_answer' not in request.form:
+
+        conn.close()
+
+        return render_template(
+            'forgot_password.html',
+            username=username,
+            security_question=security_question
+        )
+
+    # =========================
+    # TAHAP 2
+    # VERIFY ANSWER
+    # =========================
+
+    security_answer = request.form['security_answer']
+
+    new_password = request.form['new_password']
+
+    confirm_password = request.form['confirm_password']
+
+    # cek konfirmasi password
+    if new_password != confirm_password:
+
+        conn.close()
+
+        flash("Konfirmasi password tidak cocok!", "error")
+
+        return redirect('/forgot_password')
 
     try:
 
-        # verify jawaban security question
-        ph.verify(stored_answer, security_answer)
+        # verify security answer
+        ph.verify(
+            stored_answer,
+            security_answer
+        )
 
         # hash password baru
         new_hash = ph.hash(new_password)
@@ -356,7 +465,10 @@ def forgot_password():
 
         conn.close()
 
-        flash("Password berhasil direset!", "success")
+        flash(
+            "Password berhasil direset!",
+            "success"
+        )
 
         return redirect('/login')
 
@@ -364,7 +476,10 @@ def forgot_password():
 
         conn.close()
 
-        flash("Jawaban security question salah!", "error")
+        flash(
+            "Jawaban security question salah!",
+            "error"
+        )
 
         return redirect('/forgot_password')
 
