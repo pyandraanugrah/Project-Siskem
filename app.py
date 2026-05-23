@@ -1,17 +1,34 @@
 from flask import Flask, render_template, request, session, redirect, flash
+from datetime import timedelta 
 from argon2 import PasswordHasher
 import time 
 import sqlite3
 
 app = Flask(__name__)
 
+# =========================  
+# SESSION TIMEOUT
+# =========================
+app.permanent_session_lifetime = timedelta(minutes=5)    
+
 # Secret key untuk session
 app.secret_key = 'secret123'
+
+# =========================
+# AUTO SESSION CHECK
+# ========================= 
+@app.before_request
+def session_timeout():
+
+    session.permanent = True
+
+    # reset timer setiap ada aktivitas
+    session.modified = True
 
 # Argon2 Password Hasher
 ph = PasswordHasher()
 
-# =========================
+# ========================= 
 # LOGIN ATTEMPT LIMITER
 # =========================
 login_attempts = {} 
@@ -191,6 +208,8 @@ def login():
 
             login_attempts[username]["attempts"] = 0
 
+        session.permanent = True
+
         # Simpan session login
         session['username'] = username
 
@@ -232,14 +251,14 @@ def login():
         )
 
         return redirect('/login')
-# =========================
+    
+        
 # DASHBOARD
 # =========================
 @app.route('/dashboard')
 def dashboard():
-
-    # Cek apakah user sudah login
     if 'username' not in session:
+        flash("Session expired. Silakan login kembali.", "error")
         return redirect('/login')
 
     return render_template(
@@ -252,6 +271,7 @@ def delete_account():
 
     # cek login
     if 'username' not in session:
+        flash("Session expired. Silakan login kembali.", "error")
         return redirect('/login')
 
     username = session['username']
@@ -285,25 +305,35 @@ def change_password_page():
 
     # cek login
     if 'username' not in session:
+        flash("Session expired. Silakan login kembali.", "error")
         return redirect('/login')
 
     return render_template('change_password.html')
 
+# proses change password
 # proses change password
 @app.route('/change_password', methods=['POST'])
 def change_password():
 
     # cek login
     if 'username' not in session:
+
+        flash(
+            "Session expired. Silakan login kembali.",
+            "error"
+        )
+
         return redirect('/login')
 
     username = session['username']
 
     old_password = request.form['old_password']
+
     new_password = request.form['new_password']
 
     # koneksi database
     conn = sqlite3.connect('database.db')
+
     cursor = conn.cursor()
 
     # ambil hash password lama
@@ -315,12 +345,20 @@ def change_password():
     result = cursor.fetchone()
 
     if result is None:
+
         conn.close()
-        return "<h2>User tidak ditemukan!</h2>"
+
+        flash(
+            "User tidak ditemukan!",
+            "error"
+        )
+
+        return redirect('/dashboard')
 
     stored_hash = result[0]
 
     try:
+
         # verify password lama
         ph.verify(stored_hash, old_password)
 
@@ -329,24 +367,35 @@ def change_password():
 
         # update password
         cursor.execute(
-            "UPDATE users SET password = ? WHERE username = ?",
+            """
+            UPDATE users
+            SET password = ?
+            WHERE username = ?
+            """,
             (new_hash, username)
         )
 
         conn.commit()
-        conn.close()
 
-        return """
-        <h2>Password berhasil diubah!</h2>
+        conn.close() 
 
-        <a href="/dashboard">Kembali ke Dashboard</a>
-        """
+        flash(
+            "Password berhasil diubah!",
+            "success"
+        )
+
+        return redirect('/dashboard')
 
     except:
+
         conn.close()
 
-        return "<h2>Password lama salah!</h2>"
-    
+        flash(
+            "Password lama salah!",
+            "error"
+        )
+
+        return redirect('/change_password')
     # =========================
 # HALAMAN FORGOT PASSWORD
 # =========================
