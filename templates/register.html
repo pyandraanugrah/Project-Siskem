@@ -1,194 +1,136 @@
 <!doctype html>
 <html>
-
-<head>
-
+  <head>
     <title>Register</title>
 
     <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
     />
+  </head>
 
-</head>
+  <body>
+    <div class="container">
+      <h1>Register</h1>
 
-<body>
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
 
-<div class="container">
+      <div class="alert alert-{{ category }}">{{ message }}</div>
 
-    <h1>Register</h1>
+      {% endfor %} {% endif %} {% endwith %}
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-
-        {% if messages %}
-
-            {% for category, message in messages %}
-
-                <div class="alert alert-{{ category }}">
-                    {{ message }}
-                </div>
-
-            {% endfor %}
-
-        {% endif %}
-
-    {% endwith %}
-
-    <form action="/register" method="POST">
+      <form action="/register" method="POST">
+        <!-- CSRF TOKEN -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
         <!-- USERNAME -->
-        <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            required
-        >
+        <input type="text" name="username" placeholder="Username" required />
 
         <!-- PASSWORD -->
         <input
-            type="password"
-            name="password"
-            id="password"
-            placeholder="Password"
-            required
-        >
+          type="password"
+          name="password"
+          id="password"
+          placeholder="Password"
+          required
+        />
 
         <!-- PASSWORD STRENGTH -->
         <div id="strength-text"></div>
 
         <!-- SHOW PASSWORD -->
         <div class="show-password">
-
-            <span onclick="togglePassword()">
-                Show/Hide Password
-            </span>
-
+          <span onclick="togglePassword()"> Show/Hide Password </span>
         </div>
 
         <!-- SECURITY QUESTION -->
         <select name="security_question" required>
+          <option value="">Pilih Security Question</option>
 
-            <option value="">
-                Pilih Security Question
-            </option>
+          <option value="Nama teman masa kecil?">Nama teman masa kecil?</option>
 
-            <option value="Nama teman masa kecil?">
-                Nama teman masa kecil?
-            </option>
+          <option value="Makanan favorit?">Makanan favorit?</option>
 
-            <option value="Makanan favorit?">
-                Makanan favorit?
-            </option>
+          <option value="Genre musik favorit?">Genre musik favorit?</option>
 
-            <option value="Genre musik favorit?">
-                Genre musik favorit?
-            </option>
-
-            <option value="Nama hewan peliharaan pertama?">
-                Nama hewan peliharaan pertama?
-            </option>
-
+          <option value="Nama hewan peliharaan pertama?">
+            Nama hewan peliharaan pertama?
+          </option>
         </select>
 
         <!-- SECURITY ANSWER -->
         <input
-            type="text"
-            name="security_answer"
-            placeholder="Jawaban Security Question"
-            required
-        >
+          type="text"
+          name="security_answer"
+          placeholder="Jawaban Security Question"
+          required
+        />
 
         <!-- BUTTON -->
-        <button type="submit">
-            Register
-        </button>
+        <button type="submit">Register</button>
+      </form>
 
-    </form>
+      <div class="center">
+        <br />
 
-    <div class="center">
-
-        <br>
-
-        <a href="/login">
-            Sudah punya akun? Login
-        </a>
-
+        <a href="/login"> Sudah punya akun? Login </a>
+      </div>
     </div>
 
-</div>
+    <script>
+      function togglePassword() {
+        let password = document.getElementById("password");
 
-<script>
+        if (password.type === "password") {
+          password.type = "text";
+        } else {
+          password.type = "password";
+        }
+      }
 
-function togglePassword() {
+      // PASSWORD STRENGTH METER
+      let passwordInput = document.getElementById("password");
 
-    let password = document.getElementById("password");
+      let strengthText = document.getElementById("strength-text");
 
-    if (password.type === "password") {
+      passwordInput.addEventListener("input", function () {
+        let password = passwordInput.value;
 
-        password.type = "text";
+        let strength = 0;
 
-    } else {
+        // minimal 8 karakter
+        if (password.length >= 8) {
+          strength++;
+        }
 
-        password.type = "password";
+        // huruf besar
+        if (/[A-Z]/.test(password)) {
+          strength++;
+        }
 
-    }
+        // angka
+        if (/[0-9]/.test(password)) {
+          strength++;
+        }
 
-}
+        // simbol
+        if (/[!@#$%^&*()_+\-=]/.test(password)) {
+          strength++;
+        }
 
-// PASSWORD STRENGTH METER
-let passwordInput = document.getElementById("password");
-
-let strengthText = document.getElementById("strength-text");
-
-passwordInput.addEventListener("input", function(){
-
-    let password = passwordInput.value;
-
-    let strength = 0;
-
-    // minimal 8 karakter
-    if(password.length >= 8){
-        strength++;
-    }
-
-    // huruf besar
-    if(/[A-Z]/.test(password)){
-        strength++;
-    }
-
-    // angka
-    if(/[0-9]/.test(password)){
-        strength++;
-    }
-
-    // simbol
-    if(/[!@#$%^&*()_+\-=]/.test(password)){
-        strength++;
-    }
-
-    // hasil strength
-    if(strength <= 1){
-
-        strengthText.innerHTML = "❌ Password Lemah!";
-        strengthText.style.color = "#ef4444";
-
-    }
-    else if(strength <= 3){
-
-        strengthText.innerHTML = "⚠️ Password Sedang!";
-        strengthText.style.color = "#facc15";
-
-    }
-    else{
-
-        strengthText.innerHTML = "✅ Password Kuat!";
-        strengthText.style.color = "#4ade80";
-
-    }
-
-});
-
-</script>
-
-</body>
+        // hasil strength
+        if (strength <= 1) {
+          strengthText.innerHTML = "❌ Password Lemah!";
+          strengthText.style.color = "#ef4444";
+        } else if (strength <= 3) {
+          strengthText.innerHTML = "⚠️ Password Sedang!";
+          strengthText.style.color = "#facc15";
+        } else {
+          strengthText.innerHTML = "✅ Password Kuat!";
+          strengthText.style.color = "#4ade80";
+        }
+      });
+    </script>
+  </body>
 </html>

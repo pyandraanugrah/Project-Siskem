@@ -20,6 +20,7 @@
       }
     }
   </script>
+
   <body>
     <div class="container">
       <h1>Login</h1>
@@ -32,8 +33,13 @@
       {% endfor %} {% endif %} {% endwith %}
 
       <form action="/login" method="POST">
+        <!-- CSRF TOKEN -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+        <!-- USERNAME -->
         <input type="text" name="username" placeholder="Username" required />
 
+        <!-- PASSWORD -->
         <input
           type="password"
           name="password"
@@ -41,12 +47,16 @@
           placeholder="Password"
           required
         />
+
+        <!-- SHOW PASSWORD -->
         <div class="show-password">
           <span onclick="togglePassword()"> Show/Hide Password </span>
         </div>
 
+        <!-- LOGIN BUTTON -->
         <button type="submit">Login</button>
 
+        <!-- FORGOT PASSWORD -->
         <div class="center">
           <br />
 
@@ -54,6 +64,7 @@
         </div>
       </form>
 
+      <!-- REGISTER -->
       <div class="center">
         <br />
 

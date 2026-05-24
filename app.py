@@ -1,10 +1,16 @@
 from flask import Flask, render_template, request, session, redirect, flash
+from flask_wtf.csrf import CSRFProtect
 from datetime import timedelta 
 from argon2 import PasswordHasher
 import time 
 import sqlite3
 
 app = Flask(__name__)
+
+# =========================
+# CSRF PROTECTION
+# =========================
+csrf = CSRFProtect(app)
 
 # =========================  
 # SESSION TIMEOUT
