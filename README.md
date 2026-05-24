@@ -26,6 +26,9 @@ A secure authentication website built using Flask, SQLite, and Argon2 password h
 - Security Question Verification
 - Session Authentication
 - Hashed Security Answers
+- Login Attempt Limiter
+- Session Timeout
+- CSRF Protection
 
  ## Screenshots
 
@@ -78,13 +81,6 @@ http://127.0.0.1:5000
 
 Kelompok 4 Sitem Keamanan 
 Dibuat Untuk Projek Sistem Keamanan 
-
-## Future Improvements
-
-- Login Attempt Limiter
-- Session Timeout
-- CSRF Protection
-
 
 ## Project Structure
 
